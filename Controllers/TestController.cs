@@ -5,22 +5,25 @@ using Microsoft.EntityFrameworkCore;
 using TodoApp.Data;
 using TodoApp.Models;
 
-// [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-[Route("api/[controller]")]
-[ApiController]
-public class TestController : ControllerBase
+namespace TodoApp.Controllers
 {
-    private readonly ApiDbContext _context;
-
-    public TestController(ApiDbContext context)
+    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Route("api/[controller]")]
+    [ApiController]
+    public class TestController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly ApiDbContext _context;
 
-    [HttpGet]
-    public ActionResult GetItems()
-    {
-        var message = "Perfect";
-        return Ok(message);
+        public TestController(ApiDbContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet]
+        public ActionResult GetItems()
+        {
+            var message = "Perfect";
+            return Ok(message);
+        }
     }
 }

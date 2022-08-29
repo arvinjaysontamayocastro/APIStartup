@@ -5,82 +5,85 @@ using Microsoft.EntityFrameworkCore;
 using TodoApp.Data;
 using TodoApp.Models;
 
-// [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-[Route("api/[controller]")]
-[ApiController]
-public class TodoController : ControllerBase
+namespace TodoApp.Controllers
 {
-    private readonly ApiDbContext _context;
-
-    public TodoController(ApiDbContext context)
+    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Route("api/[controller]")]
+    [ApiController]
+    public class TodoController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly ApiDbContext _context;
 
-    [HttpGet]
-    public ActionResult GetItems()
-    {
-        var items = _context.Items.ToList();
-        return Ok(items);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetItem(int id)
-    {
-        var item = await _context.Items.FirstOrDefaultAsync(z => z.Id == id);
-
-        if(item == null)
-            return NotFound();
-
-        return Ok(item);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> CreateItem(ItemData data)
-    {
-        if(ModelState.IsValid)
+        public TodoController(ApiDbContext context)
         {
-           await _context.Items.AddAsync(data);
-           await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetItem", new {data.Id}, data);
+            _context = context;
         }
 
-         return new JsonResult("Somethign Went wrong") {StatusCode = 500};
-    }
+        [HttpGet]
+        public ActionResult GetItems()
+        {
+            var items = _context.Items.ToList();
+            return Ok(items);
+        }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateItem(int id, ItemData item)
-    {
-        if(id != item.Id)
-            return BadRequest();
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetItem(int id)
+        {
+            var item = await _context.Items.FirstOrDefaultAsync(z => z.Id == id);
 
-        var existItem = await _context.Items.FirstOrDefaultAsync(z => z.Id == id);
+            if (item == null)
+                return NotFound();
 
-        if(existItem == null)
-            return NotFound();
+            return Ok(item);
+        }
 
-        existItem.Title = item.Title;
-        existItem.Details = item.Details;
-        existItem.Done = item.Done;
+        [HttpPost]
+        public async Task<IActionResult> CreateItem(ItemData data)
+        {
+            if (ModelState.IsValid)
+            {
+                await _context.Items.AddAsync(data);
+                await _context.SaveChangesAsync();
 
-        await _context.SaveChangesAsync();
+                return CreatedAtAction("GetItem", new { data.Id }, data);
+            }
 
-                // Following up the REST standart on update we need to return NoContent
-        return NoContent();
-    }
+            return new JsonResult("Somethign Went wrong") { StatusCode = 500 };
+        }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteItem(int id)
-    {
-        var existItem = await _context.Items.FirstOrDefaultAsync(z => z.Id == id);
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateItem(int id, ItemData item)
+        {
+            if (id != item.Id)
+                return BadRequest();
 
-        if(existItem == null)
-            return NotFound();
+            var existItem = await _context.Items.FirstOrDefaultAsync(z => z.Id == id);
 
-        _context.Items.Remove(existItem);
-        await _context.SaveChangesAsync();
+            if (existItem == null)
+                return NotFound();
 
-        return Ok(existItem);
+            existItem.Title = item.Title;
+            existItem.Details = item.Details;
+            existItem.Done = item.Done;
+
+            await _context.SaveChangesAsync();
+
+            // Following up the REST standart on update we need to return NoContent
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteItem(int id)
+        {
+            var existItem = await _context.Items.FirstOrDefaultAsync(z => z.Id == id);
+
+            if (existItem == null)
+                return NotFound();
+
+            _context.Items.Remove(existItem);
+            await _context.SaveChangesAsync();
+
+            return Ok(existItem);
+        }
     }
 }
